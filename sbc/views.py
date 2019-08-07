@@ -27,7 +27,7 @@ class IndexView(TemplateView):
             # obtiene datos del formulario
             text = form.cleaned_data['consulta']
             semantico = Semantico()
-            datos, entidades, datos2 = semantico.consultaVirutoso(text)
+            datos, entidades, datos2, entidades2 = semantico.consultaVirutoso(text)
             textoAnalizado = semantico.textoHtml(text, entidades)
             form = SbcForm()
             args = {"datos": datos, "form": form,
@@ -81,13 +81,16 @@ class Semantico():
         datos = []
         datos2 = []
         entidades = []
+        entidades2 = []
         auxiliar = []
         for sentence in tokenized_sentences:
             for entity in self.nlp(sentence).ents:
+                entidades2.append(entity.text)
+                # print ("sem")
+                # print (entity.text)
                 palabras = difflib.get_close_matches(entity.text, ['Rafael Correa', 'Odebrecht', 'Alexis Mera', 'CWNE','SK Engeenering'])
-                print (palabras)
                 palabras2 = ''.join(palabras)
-
+                
                 if len(palabras2) > 0:
                     entidades.append(palabras2)
                     consulta = """
@@ -97,7 +100,7 @@ class Semantico():
                                        ?s ?p ?o .FILTER (regex(str(?s), "%s") || regex(str(?o), "%s")) .
                                 }
                             """ % (palabras2.replace(' ',''), palabras2)
-                    #print (consulta)
+                    
                 else:
                     entidades.append(entity.text)
                     consulta = """
@@ -107,19 +110,15 @@ class Semantico():
                             ?s ?p ?o .FILTER (regex(str(?s), "%s") || regex(str(?o), "%s")) .
                         }
                      """ % (entity.text.replace(' ',''), entity)
-                # print (type (entity.text))
                 
-                # print (entity.text)
                 #if len(palabras2) > 0:
-                    #print (len(palabras2))
+                    
                  #   entidades.append(palabras2)
                 #else:
-                    #print (len(palabras2))
-                    #print (palabras2, "here")
+                    
                 
                 #t = entity.text.split(" ")
                 #if len(t) > 1:
-                 #   print (len(t))
                   #  for i in range(len(t)):
                    #     auxiliar.append(entity.text.split())
                     #    for palabraEn in auxiliar:
@@ -160,8 +159,6 @@ class Semantico():
                     lista.append(listaP)
                     aux2 = listaP.rsplit('/', 1).pop()
                     if aux2 == "type":
-                        #print (listaO," LISTA O")
-                        #print (listaS," LISTA S")
                         listaTipos.append(listaO.rsplit('/', 1).pop())
                         listaTipos.append(listaS.rsplit('/', 1).pop())
                     
@@ -174,80 +171,77 @@ class Semantico():
                 
                 #prop.append(entity.label_)
                 
-                
+                    
                     datos.append(lista)
-                    #print (datos2)
 
 
                 
         # Eliminando duplicados
         # entidades = list(set(entidades))
-        return datos, entidades, datos2
+        return datos, entidades, datos2, entidades2
 
-    def textoHtml(self, texto, entidades):
-        for palabra in entidades:
-            aux = palabra
-            palabraUnica = difflib.get_close_matches(palabra, ['Rafael Correa', 'Odebrecht', 'Alexis Mera', 'CWNE','SK Engeenering'])
-            if len(palabraUnica) > 0:
-                palabra = ''.join(palabraUnica)
-
-            if len(palabra)>0:
-                palabra = palabra.replace(' ', '')
-            #print (palabra, " ", aux)
-                palabra = palabra.replace('á', 'a')
-                palabra = palabra.replace('é', 'e')
-                palabra = palabra.replace('í', 'i')
-                palabra = palabra.replace('ó', 'o')
-                palabra = palabra.replace('ú', 'u')
-                url = '<a target="_blank" href = "http://localhost:8080/mydataset/page/{}">{}</a>'.format(palabra,aux)
-                if url not in texto:
-                    palabra = palabra.replace(' ', '')
-                    palabra = palabra.replace('í', 'i')
-                    texto = texto.replace(aux, url)
-                else:
-                    palabra = palabra.replace(' ', '')
-                    #print (palabra, " ", aux)
-                    palabra = palabra.replace('á', 'a')
-                    palabra = palabra.replace('é', 'e')
-                    palabra = palabra.replace('í', 'i')
-                    palabra = palabra.replace('ó', 'o')
-                    palabra = palabra.replace('ú', 'u')
-                    url = '<a target="_blank" href = "http://localhost:8080/mydataset/page/{}">{}</a>'.format(palabra,aux)
-                    if url not in texto:
-                        palabra = palabra.replace(' ', '')
-                        palabra = palabra.replace('í', 'i')
-                        texto = texto.replace(aux, url)
-
-            else:
-                if palabra in texto:
-
-                    if len(palabra) > 0:
-                        palabra = palabra.replace(' ', '')
-                        #print (palabra, " ", aux)
-                        palabra = palabra.replace('á', 'a')
-                        palabra = palabra.replace('é', 'e')
-                        palabra = palabra.replace('í', 'i')
-                        palabra = palabra.replace('ó', 'o')
-                        palabra = palabra.replace('ú', 'u')
-                        url = '<a target="_blank" href = "http://localhost:8080/mydataset/page/{}">{}</a>'.format(palabra,aux)
-                        if url not in texto:
-                            palabra = palabra.replace(' ', '')
-                            palabra = palabra.replace('í', 'i')
-                            texto = texto.replace(aux, url)
-                else:
-                    palabra = palabra.replace(' ', '')
-                    #print (palabra, " ", aux)
-                    palabra = palabra.replace('á', 'a')
-                    palabra = palabra.replace('é', 'e')
-                    palabra = palabra.replace('í', 'i')
-                    palabra = palabra.replace('ó', 'o')
-                    palabra = palabra.replace('ú', 'u')
-                    url = '<a target="_blank" href = "http://localhost:8080/mydataset/page/{}">{}</a>'.format(palabra,aux)
-                    if url not in texto:
-                        palabra = palabra.replace(' ', '')
-                        palabra = palabra.replace('í', 'i')
-                        texto = texto.replace(aux, url)
+    def textoHtml(self, texto, entidades2):
+        aux2=""
+        listaObjetos = []
+        #print (entidades2)
+        for palabra in entidades2:
+            if palabra in texto:
+                consulta2 = """
+                            PREFIX cavr: <http://localhost:8080/mydataset/schema/>
+                            SELECT ?s ?o
+                            WHERE
+                            {
+                                ?s cavr:label ?o .
+                            }""" 
+                self.sbcEndpoint.setQuery(consulta2)
+                self.sbcEndpoint.setReturnFormat(JSON)
+                results3 = self.sbcEndpoint.query().convert()
+                for result in results3["results"]["bindings"]:
+                    listaS = result["s"]["value"].strip()
+                    listaO = result["o"]["value"].strip()
+                    aux2 = listaO.rsplit('/', 1).pop()
+                    aux6 = listaS.rsplit('/', 1).pop()
+                    listaObjetos.append(aux2)
+                listaObjetos = list(set(listaObjetos))
                 
+                palabraUnica = difflib.get_close_matches(palabra,listaObjetos)
+                palabraUnica = ''.join(palabraUnica)
+                #print (palabraUnica )
+                if len(palabraUnica) > 0:
+                    palabra2 = palabraUnica
+                    #print ("===================================================================")
+                else :
+                    palabra = palabra
+
+
+
+
+
+
+                
+                consulta = """
+                            PREFIX cavr: <http://localhost:8080/mydataset/schema/>
+                            SELECT ?s ?o
+                            WHERE
+                            {
+                                ?s cavr:label ?o .FILTER (regex(str(?o), "%s")) .
+                            }""" % (palabra2)
+                print (consulta)
+                self.sbcEndpoint.setQuery(consulta)
+                self.sbcEndpoint.setReturnFormat(JSON)
+                results2 = self.sbcEndpoint.query().convert()
+                #print (results2)
+                for result in results2["results"]["bindings"]:
+                    listaS = result["s"]["value"].strip()
+                    aux2 = listaS.rsplit('/', 1).pop()
+                #palabra = palabra.replace('í', 'i')
+                
+                url = '<a href = "http://localhost:8080/mydataset/page/{}">{}</a>'.format(aux2,palabra)
+                print (url)
+                
+                if url not in texto:
+                    texto = texto.replace(palabra, url)
+        
 
         return texto
 
