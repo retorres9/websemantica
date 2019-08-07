@@ -27,12 +27,13 @@ class IndexView(TemplateView):
             # obtiene datos del formulario
             text = form.cleaned_data['consulta']
             semantico = Semantico()
-            datos, entidades, datos2, entidades2 = semantico.consultaVirutoso(text)
+            datos, entidades, datos2, entidades2, listaCountTipos = semantico.consultaVirutoso(text)
             textoAnalizado = semantico.textoHtml(text, entidades)
             form = SbcForm()
             args = {"datos": datos, "form": form,
                     "texto": text, "textoAnalizado": textoAnalizado,
-                    "datos2": datos2, "form2": form}
+                    "datos2": datos2, "form2": form,
+                    "listaCountTipos": listaCountTipos, "form3": form}
         return render(request, self.template_name, args)
 
 
@@ -80,7 +81,15 @@ class Semantico():
         tokenized_sentences = [sentence.text for sentence in text.sents]
         datos = []
         datos2 = []
+        listaAux2 = []
+        auxO = ""
+        listaTipos2 = []
+        listaAux = []
+        listaCountTipos = []
+        listaCountTipos2 = []
+        listaTipos3 = []
         entidades = []
+        lista = []
         entidades2 = []
         auxiliar = []
         for sentence in tokenized_sentences:
@@ -146,10 +155,11 @@ class Semantico():
                 self.sbcEndpoint.setReturnFormat(JSON)
                 results = self.sbcEndpoint.query().convert()
                 for result in results["results"]["bindings"]:
-                    lista = []
+                    
                     listaTipos = []
                     contador = []
                     listaTipos2 = []
+                    
                     listaS = result["s"]["value"].strip()
                     listaP = result["p"]["value"]
                     listaO = result["o"]["value"]
@@ -161,24 +171,55 @@ class Semantico():
                     if aux2 == "type":
                         listaTipos.append(listaO.rsplit('/', 1).pop())
                         listaTipos.append(listaS.rsplit('/', 1).pop())
+                        auxO = listaO.rsplit('/',1).pop()
+                        auxO = ''.join(auxO)
+                        # print (auxO)
+                        listaAux.append(auxO)
+                        listaTipos2.append(auxO)
+                        # print (listaTipos2)
                     
                     lista.append(listaO)
-                    listaTipos2 = [x for x in listaTipos if x != []]
-                    datos2.append(listaTipos2)
-                    datos2.sort()
-
-
-                
-                #prop.append(entity.label_)
-                
                     
-                    datos.append(lista)
+                    listaAux2 = listaAux
+                    listaAux2 = list(set(listaAux2))
+                    
+                    # print (listaTipos2)
+                    listaTipos3.append(listaTipos2)             
+                    listaTipos2 = [x for x in listaTipos if x != []]
+                    listaTipos3 = [x for x in listaTipos3 if x != []]
+                    # print (auxO)
+                    # counter = listaTipos3.count(auxO)
+                    # print (counter)
+                    
+                    # print (auxO, ", ", listaS)
+                    
+                    datos2.append(listaTipos2)
+                    datos2.sort()    
+                # print (listaTipos3)
+                    
+                datos.append(lista)
 
+        
+        for tipos in listaAux2:
+            # print (tipos)
+            # print (listaAux)
+            counter = listaAux.count(tipos)
+            listCount =[]
+            listCount.append(counter)
+            liste = [counter, tipos]
+            # print (counter)
+            listaCountTipos.append(liste)
+            # listaCountTipos2.append(tipos)
+            # listaCountTipos.append(listaCountTipos2)
 
+        # listaCountTipos.append(listaCountTipos2)
+        
+        print (listaCountTipos)
+        # print (datos2)
                 
         # Eliminando duplicados
         # entidades = list(set(entidades))
-        return datos, entidades, datos2, entidades2
+        return datos, entidades, datos2, entidades2, listaCountTipos
 
     def textoHtml(self, texto, entidades2):
         aux2=""
@@ -209,15 +250,8 @@ class Semantico():
                 #print (palabraUnica )
                 if len(palabraUnica) > 0:
                     palabra2 = palabraUnica
-                    #print ("===================================================================")
                 else :
                     palabra = palabra
-
-
-
-
-
-
                 
                 consulta = """
                             PREFIX cavr: <http://localhost:8080/mydataset/schema/>
@@ -226,7 +260,7 @@ class Semantico():
                             {
                                 ?s cavr:label ?o .FILTER (regex(str(?o), "%s")) .
                             }""" % (palabra2)
-                print (consulta)
+                # print (consulta)
                 self.sbcEndpoint.setQuery(consulta)
                 self.sbcEndpoint.setReturnFormat(JSON)
                 results2 = self.sbcEndpoint.query().convert()
@@ -237,7 +271,7 @@ class Semantico():
                 #palabra = palabra.replace('í', 'i')
                 
                 url = '<a href = "{}">{}</a>'.format(listaS,palabra)
-                print (url)
+                # print (url)
                 
                 if url not in texto:
                     texto = texto.replace(palabra, url)

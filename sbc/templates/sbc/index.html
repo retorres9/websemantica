@@ -123,8 +123,7 @@
                 {% for items in datos2 %}
                 <tr>
                     {% for item in items %}
-                    <td style="word-wrap: break-word;min-width: 160px;max-width: 160px;"><a
-                            href="{{ item }}">{{item}}</a>
+                    <td style="word-wrap: break-word;min-width: 160px;max-width: 160px;"><a>{{item}}</a>
                     </td>
                     {% endfor %}
                 </tr>
@@ -145,6 +144,50 @@
 {% else %}
 <p></p>
 {% endif %}
+
+
+
+
+
+<hr>
+
+{% if texto %}
+{% if listaCountTipos %}
+<div class="row mt-5">
+    <div class="col-sm-12 col-12 mt-3">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Cantidad</th>
+                    <th scope="col">Tipo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for items in listaCountTipos %}
+                <tr>
+                    {% for item in items %}
+                    <td style="word-wrap: break-word;min-width: 160px;max-width: 160px;"><a>{{item}}</a>
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <!-- {{entidades}} -->
+    </div>
+</div>
+
+
+
+
+{% else %}
+<p class="text-danger mt-3">No se encontraron resultados.</p>
+{% endif %}
+
+{% else %}
+<p></p>
+{% endif %}
+
 
 
 
