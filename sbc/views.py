@@ -236,7 +236,7 @@ class Semantico():
                     aux2 = listaS.rsplit('/', 1).pop()
                 #palabra = palabra.replace('í', 'i')
                 
-                url = '<a href = "http://localhost:8080/mydataset/page/{}">{}</a>'.format(aux2,palabra)
+                url = '<a href = "{}">{}</a>'.format(listaS,palabra)
                 print (url)
                 
                 if url not in texto:
