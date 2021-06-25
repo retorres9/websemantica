@@ -44,24 +44,18 @@ Comando para guardar datos en github
 ```
 #
 
-## Comando para unir ramas
-Suponiendo que estas en una rama creada, por ejemplo la rama test y quieres unir tu rama a la principal
-
-```bash
-  git merge <master>
-```
-
 ## Información
-Una vez se hace el merge en la página del repositorio se crea un pull request y ahí github hace pruebas de compatibilidad, si todo va bien añade la rama hija a la rama padre.
+Una vez se hace el push en la página del repositorio se crea un pull request y ahí github hace pruebas de compatibilidad, si todo va bien añade la rama hija a la rama padre.
 
-## Obtener los cambios de la rama principal
+## Obtener los cambios en la rama principal
 ```bash
   git pull
 ```
 
-
-
-
+## Obtener los cambios de la rama principal en tu rama
+```bash
+  git rebase master
+```
 
   
 ## Authors
