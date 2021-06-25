@@ -5,6 +5,7 @@ import sys
 
 
 def main():
+    #!! Comentario
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'websemantica.settings')
     try:
         from django.core.management import execute_from_command_line
