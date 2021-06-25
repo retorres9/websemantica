@@ -9,7 +9,7 @@ class Semantico():
 
     def consultaVirutoso(self, texto):
         consulta = """
-         SELECT ?s ?p ?o
+         SELECT ?s ?p ?o ?i
             WHERE 
                 { 
                     ?s ?p ?o .FILTER regex(str(?s), "%s") .
